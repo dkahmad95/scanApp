@@ -88,7 +88,7 @@ const onSubmit = async (data: FormDataType) => {
   const { firstName, lastName, idNumber, dob } = data;
 
   try {
-    const response = await fetch('http://localhost:3000/id-scan', {
+    const response = await fetch('https://scanappbackend.onrender.com/id-scan', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
