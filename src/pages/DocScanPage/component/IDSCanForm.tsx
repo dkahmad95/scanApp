@@ -7,8 +7,15 @@ import {
   Menu,
   MenuItem,
   Box,
+
+
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
+import ScanCard from "../../../components/Card";
+import Grid from '@mui/material/Grid';
+
+
+
 
 interface FormDataType {
   firstName: string;
@@ -17,15 +24,22 @@ interface FormDataType {
   dob: string;
   idImage: File | null;
 }
+interface ScanData {
+    id: number; 
+  firstName: string;
+  lastName: string;
+  idNumber: string;
+  dob: string;
+}
 
-const IDScanForm: React.FC = () => {
+const IDScanForm = () => {
   const { control, handleSubmit, setValue, watch } = useForm<FormDataType>({
     defaultValues: {
       firstName: "",
       lastName: "",
       idNumber: "",
       dob: "",
-      idImage: null,
+     
     },
   });
 
@@ -34,6 +48,18 @@ const IDScanForm: React.FC = () => {
   const selectedImage = watch("idImage");
 
   const [previewUrl, setPreviewUrl] = useState<string>("");
+ const [scanData, setScanData] = useState<ScanData[]>([]);
+
+  useEffect(() => {
+    // fetch('http://localhost:3000/id-scan') 
+     fetch('https://scanappbackend.onrender.com/id-scan')
+      .then((res) => res.json())
+      .then((data) => setScanData(data))
+      .catch((err) => console.error(err));
+  }, []);
+
+
+console.log(scanData)
 
   // Create and clean up preview URL when idImage changes
   useEffect(() => {
@@ -88,7 +114,10 @@ const onSubmit = async (data: FormDataType) => {
   const { firstName, lastName, idNumber, dob } = data;
 
   try {
-    const response = await fetch('https://scanappbackend.onrender.com/id-scan', {
+    const response = await
+     fetch('https://scanappbackend.onrender.com/id-scan'
+    //  fetch('http://localhost:3000/id-scan'
+      , {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -108,6 +137,21 @@ const onSubmit = async (data: FormDataType) => {
     alert('Error submitting data');
   }
 };
+
+//delete scanId
+  const handleDelete = async (id: number) => {
+    try {
+      await 
+      // fetch(`http://localhost:3000/id-scan/${id}`
+          fetch(`https://scanappbackend.onrender.com/id-scan/${id}`
+        , {
+        method: 'DELETE',
+      });
+      setScanData((prev) => prev.filter((item) => item.id !== id));
+    } catch (err) {
+      console.error('Error deleting item:', err);
+    }
+  };
 
   return (
     <Container sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 4 }}>
@@ -192,6 +236,16 @@ const onSubmit = async (data: FormDataType) => {
       <Button variant="outlined" onClick={handleSubmit(onSubmit)}>
         Submit
       </Button>
+     <Box sx={{ flexGrow: 1 }}>
+      <Grid container spacing={2}>
+        {scanData.map((scan) => (
+          <Grid key={scan.id}  >
+            <ScanCard data={scan} onDelete={handleDelete} />
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+     
     </Container>
   );
 };
