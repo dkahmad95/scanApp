@@ -1,5 +1,5 @@
 import {  Container } from '@mui/material';
-import IDScanForm from './component/IDSCanForm';
+import IDScanForm from './component/idForm/IDSCanForm';
 
 const DocScanPage = () => {
   return (
